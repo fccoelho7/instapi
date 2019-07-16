@@ -4,7 +4,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use InstagramAPI\Instagram;
 
-InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
+\InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 return function (App $app) {
     $container = $app->getContainer();
@@ -14,7 +14,7 @@ return function (App $app) {
         $password = $request->getParam('password');
 
         try {
-            $ig = new InstagramAPI\Instagram();
+            $ig = new \InstagramAPI\Instagram();
             $ig->login($username, $password);
             $closeFriends = json_decode($ig->people->getCloseFriends(), true);
 
@@ -30,7 +30,7 @@ return function (App $app) {
         $followers = $request->getParam('friends');
 
         try {
-            $ig = new InstagramAPI\Instagram();
+            $ig = new \InstagramAPI\Instagram();
             $ig->login($username, $password);
 
             $ig->people->setCloseFriends($followers, []);
@@ -47,7 +47,7 @@ return function (App $app) {
         $followers = $request->getParam('friends');
 
         try {
-            $ig = new InstagramAPI\Instagram();
+            $ig = new \InstagramAPI\Instagram();
             $ig->login($username, $password);
 
             $ig->people->setCloseFriends([], $followers);
