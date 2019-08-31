@@ -4,7 +4,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use InstagramAPI\Instagram;
 
-\InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
+InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 return function (App $app) {
     $container = $app->getContainer();
@@ -14,8 +14,19 @@ return function (App $app) {
         $password = $request->getParam('password');
 
         try {
-            $ig = new \InstagramAPI\Instagram();
-            $ig->login($username, $password);
+            $ig = new InstagramAPI\Instagram();
+            $loginResponse = $ig->login($username, $password);
+
+            if (!is_null($loginResponse) && $loginResponse->isTwoFactorRequired()) {
+                $twoFactorIdentifier = $loginResponse->getTwoFactorInfo()->getTwoFactorIdentifier();
+
+                 // The "STDIN" lets you paste the code via terminal for testing.
+                 // You should replace this line with the logic you want.
+                 // The verification code will be sent by Instagram via SMS.
+                $verificationCode = trim(fgets(STDIN));
+                $ig->finishTwoFactorLogin($verificationCode, $twoFactorIdentifier);
+            }
+
             $closeFriends = json_decode($ig->people->getCloseFriends(), true);
 
             return $response->withJson(['friends' => $closeFriends['users']]);
@@ -27,34 +38,38 @@ return function (App $app) {
     $app->post('/close-friends/add', function (Request $request, Response $response, array $args) use ($container) {
         $username  = $request->getParam('username');
         $password  = $request->getParam('password');
-        $followers = $request->getParam('friends');
+        $member = $request->getParam('member');
 
         try {
-            $ig = new \InstagramAPI\Instagram();
+            $ig = new InstagramAPI\Instagram();
             $ig->login($username, $password);
+            $memberData = json_decode($ig->people->getInfoByName($member));
+            $memberId = $memberData->user->pk;
 
-            $ig->people->setCloseFriends($followers, []);
+            $ig->people->setCloseFriends([$memberId], []);
 
-            return $response->withJson(['message' => 'Followers have added to the close friends!']);
-        } catch (\Throwable $th) {
-            return $response->withJson(['error' => $th], 400);
+            return $response->withJson(['status' => 'success', 'data' => $memberData ]);
+        } catch (\Throwable $error) {
+            return $response->withJson(['status' => 'failure', 'error' => $error->getMessage()], 400);
         }
     });
 
     $app->post('/close-friends/remove', function (Request $request, Response $response, array $args) use ($container) {
         $username  = $request->getParam('username');
         $password  = $request->getParam('password');
-        $followers = $request->getParam('friends');
+        $member = $request->getParam('member');
 
         try {
-            $ig = new \InstagramAPI\Instagram();
+            $ig = new InstagramAPI\Instagram();
             $ig->login($username, $password);
+            $memberData = json_decode($ig->people->getInfoByName($member));
+            $memberId = $memberData->user->pk;
 
-            $ig->people->setCloseFriends([], $followers);
+            $ig->people->setCloseFriends([], [$memberId]);
 
-            return $response->withJson(['message' => 'Followers have removed from the close friends!']);
-        } catch (\Throwable $th) {
-            return $response->withJson(['error' => $th], 400);
+            return $response->withJson(['status' => 'success', 'message' => 'Follower has removed from the close friends!']);
+        } catch (\Throwable $error) {
+            return $response->withJson(['status' => 'failure', 'error' => $error->getMessage()], 400);
         }
     });
 };
