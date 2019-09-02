@@ -45,8 +45,10 @@ return function (App $app) {
             $ig->login($username, $password);
             $memberData = json_decode($ig->people->getInfoByName($member));
             $memberId = $memberData->user->pk;
+            $memberFirstName = explode(' ', $memberData->user->full_name)[0];
 
             $ig->people->setCloseFriends([$memberId], []);
+            $ig->direct->sendText(['users' => [$memberId]], "Olá {$memberFirstName}, agora você faz parte do meu close friends. Enjoy! :)");
 
             return $response->withJson(['status' => 'success', 'data' => $memberData ]);
         } catch (\Throwable $error) {
