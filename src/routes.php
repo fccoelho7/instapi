@@ -74,4 +74,18 @@ return function (App $app) {
             return $response->withJson(['status' => 'failure', 'error' => $error->getMessage()], 400);
         }
     });
+
+    $app->post('/comment', function (Request $request, Response $response, array $args) use ($container) {
+        $ig          = new InstagramAPI\Instagram();
+        $username    = $request->getParam('username');
+        $password    = $request->getParam('password');
+        $mediaId     = $request->getParam('mediaId');
+        $commentText = $request->getParam('commentText');
+
+        $ig->login($username, $password);
+
+        $ig->media->comment($mediaId, $commentText);
+
+        return $response->withJson(['status' => 'success', 'message' => 'Successful commented!']);
+    });
 };

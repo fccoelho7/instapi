@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "985aaf134b80709b90a393bec463b34d",
+    "content-hash": "f4c8923dbdc62de27f6e9bf786124a22",
     "packages": [
         {
             "name": "binsoul/net-mqtt",
@@ -250,6 +250,7 @@
             ],
             "description": "Promoting the interoperability of container objects (DIC, SL, etc.)",
             "homepage": "https://github.com/container-interop/container-interop",
+            "abandoned": "psr/container",
             "time": "2017-02-14T19:40:03+00:00"
         },
         {
@@ -576,16 +577,16 @@
         },
         {
             "name": "mgp25/instagram-php",
-            "version": "v6.1.0",
+            "version": "v7.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mgp25/Instagram-API.git",
-                "reference": "babad4f4f9a49d85b97cbdadbd587a072ab22c2f"
+                "reference": "53421f90b9ef7743f1c6221c4963f2b9f7a592e8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mgp25/Instagram-API/zipball/babad4f4f9a49d85b97cbdadbd587a072ab22c2f",
-                "reference": "babad4f4f9a49d85b97cbdadbd587a072ab22c2f",
+                "url": "https://api.github.com/repos/mgp25/Instagram-API/zipball/53421f90b9ef7743f1c6221c4963f2b9f7a592e8",
+                "reference": "53421f90b9ef7743f1c6221c4963f2b9f7a592e8",
                 "shasum": ""
             },
             "require": {
@@ -648,7 +649,7 @@
                 "php",
                 "private"
             ],
-            "time": "2019-06-22T16:30:54+00:00"
+            "time": "2019-09-17T00:56:42+00:00"
         },
         {
             "name": "monolog/monolog",
