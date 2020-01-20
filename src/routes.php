@@ -9,6 +9,18 @@ InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 return function (App $app) {
     $container = $app->getContainer();
 
+    $app->options('/{routes:.+}', function ($request, $response, $args) {
+        return $response;
+    });
+
+    $app->add(function ($req, $res, $next) {
+        $response = $next($req, $res);
+        return $response
+                ->withHeader('Access-Control-Allow-Origin', '*')
+                ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+                ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    });
+
     $app->post('/close-friends', function (Request $request, Response $response, array $args) use ($container) {
         $username = $request->getParam('username');
         $password = $request->getParam('password');
@@ -87,5 +99,10 @@ return function (App $app) {
         $ig->media->comment($mediaId, $commentText);
 
         return $response->withJson(['status' => 'success', 'message' => 'Successful commented!']);
+    });
+
+    $app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function($req, $res) {
+        $handler = $this->notFoundHandler; // handle using the default Slim page not found handler
+        return $handler($req, $res);
     });
 };
