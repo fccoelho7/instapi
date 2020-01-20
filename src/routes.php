@@ -2,24 +2,13 @@
 use Slim\App;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use Slim\Exception\HttpNotFoundException;
 use InstagramAPI\Instagram;
 
 InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 return function (App $app) {
     $container = $app->getContainer();
-
-    $app->options('/{routes:.+}', function ($request, $response, $args) {
-        return $response;
-    });
-
-    $app->add(function ($req, $res, $next) {
-        $response = $next($req, $res);
-        return $response
-                ->withHeader('Access-Control-Allow-Origin', '*')
-                ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
-                ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    });
 
     $app->post('/close-friends', function (Request $request, Response $response, array $args) use ($container) {
         $username = $request->getParam('username');
@@ -88,17 +77,23 @@ return function (App $app) {
     });
 
     $app->post('/comment', function (Request $request, Response $response, array $args) use ($container) {
-        $ig          = new InstagramAPI\Instagram();
-        $username    = $request->getParam('username');
-        $password    = $request->getParam('password');
-        $mediaId     = $request->getParam('mediaId');
-        $commentText = $request->getParam('commentText');
+        try {
+            $username    = $request->getParam('username');
+            $password    = $request->getParam('password');
+            $mediaId     = $request->getParam('mediaId');
+            $commentText = $request->getParam('commentText');
+            $ig          = new InstagramAPI\Instagram();
 
-        $ig->login($username, $password);
+            $ig->setProxy('http://177.8.216.106:8080');
 
-        $ig->media->comment($mediaId, $commentText);
+            $ig->login($username, $password);
 
-        return $response->withJson(['status' => 'success', 'message' => 'Successful commented!']);
+            $ig->media->comment($mediaId, $commentText);
+
+            return $response->withJson(['status' => 'success', 'message' => 'Successful commented!']);
+        } catch (\Throwable $error) {
+            return $response->withJson(['status' => 'failure', 'error' => $error->getMessage()], 400);
+        }
     });
 
     $app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function($req, $res) {
